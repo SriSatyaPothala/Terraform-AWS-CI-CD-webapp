@@ -74,6 +74,21 @@ resource "aws_iam_policy" "codebuild_policy" {
         ],
         Resource = "*"
       },
+      # load balancer and target group permissions
+      {
+      Effect = "Allow",
+      Action = [
+          "elasticloadbalancing:DescribeTargetGroups",
+          "elasticloadbalancing:DescribeLoadBalancers",
+          "elasticloadbalancing:CreateTargetGroup",
+          "elasticloadbalancing:DeleteTargetGroup",
+          "elasticloadbalancing:RegisterTargets",
+          "elasticloadbalancing:DeregisterTargets",
+          "elasticloadbalancing:ModifyTargetGroup",
+          "elasticloadbalancing:ModifyTargetGroupAttributes"
+      ],
+    Resource = "*"
+    },
       # CloudWatch Logs
       {
         Effect = "Allow",
@@ -140,8 +155,27 @@ resource "aws_iam_policy" "codebuild_policy" {
           "ec2:CreateNatGateway",
           "ec2:ModifyVpcAttribute",
           "ec2:DeleteNatGateway",
-          "ec2:Describe*"
-        ],
+          "ec2:Describe*",
+          "ec2:CreateSecurityGroup",
+          "ec2:DeleteSecurityGroup",
+          "ec2:AuthorizeSecurityGroupIngress",
+          "ec2:AuthorizeSecurityGroupEgress",
+          "ec2:RevokeSecurityGroupIngress",
+          "ec2:RevokeSecurityGroupEgress",
+          "ec2:CreateSubnet",
+          "ec2:DeleteSubnet",
+          "ec2:CreateInternetGateway",
+          "ec2:AttachInternetGateway",
+          "ec2:DetachInternetGateway",
+          "ec2:DeleteInternetGateway",
+          "ec2:DescribeInternetGateways",
+          "ec2:DescribeSubnets",
+          "ec2:DescribeRouteTables",
+          "ec2:CreateRoute",
+          "ec2:AssociateRouteTable",
+          "ec2:CreateRouteTable",
+          "ec2:DeleteRouteTable"
+          ],
         Resource = "*"
       },
       # lambda invocation permissions
