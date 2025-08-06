@@ -11,6 +11,7 @@ env:
     KMS_KEY_ARN: "/dev/kms_key_arn"
     ECR_REPO_URI: "/dev/ecr_repo_url"
     INFRACOST_API_KEY: "infracost-api-key"
+    DOCKERHUB_PASSWORD : "/codebuild/dockerhub/password"
 
 phases:
   install:
@@ -51,6 +52,7 @@ phases:
   build:
     commands:
       - cd ../../../nginx-app
+      - echo "$DOCKERHUB_PASSWORD" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
       - docker build -t $ECR_REPO_URI:latest .
       - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $ECR_REPO_URI
       - docker push $ECR_REPO_URI:latest
