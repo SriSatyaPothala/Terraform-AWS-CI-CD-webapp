@@ -9,7 +9,7 @@ module "vpc" {
 }
 
 module "security_groups" {
-  source      = "../../modules/security-groups"
+  source      = "../../modules/security_groups"
   vpc_id      = module.vpc.vpc_id
   environment = var.environment
   name_prefix = var.project
@@ -20,7 +20,7 @@ module "ec2" {
   project                   = var.project
   aws_region                = var.aws_region
   instance_type             = var.instance_type
-  security_group_ids        = [module.security_group.ec2_sg_id]
+  security_group_ids        = [module.security_groups.ec2_sg_id]
   subnet_ids                = module.vpc.private_subnet_ids
   alb_target_group_arn      = module.alb.alb_target_group_blue_arn
 }
@@ -29,7 +29,7 @@ module "alb" {
   source            = "../../modules/alb"
   vpc_id            = module.vpc.vpc_id
   public_subnet_ids = module.vpc.public_subnet_ids
-  alb_sg_id         = module.security_group.alb_sg_id
+  alb_sg_id         = module.security_groups.alb_sg_id
   environment       = var.environment
 }
 module "cloudwatch" {
