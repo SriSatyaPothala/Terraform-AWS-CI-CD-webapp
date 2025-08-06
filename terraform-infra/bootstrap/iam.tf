@@ -1,6 +1,4 @@
-
 # Create EC2 IAM Role and  Instance Profile
-
 resource "aws_iam_role" "ec2_role" {
   name = "${var.environment}-${var.project}-ec2-role"
 
@@ -41,9 +39,7 @@ resource "aws_ssm_parameter" "ec2_instance_profile" {
   value = aws_iam_instance_profile.ec2_instance_profile.name
 }
 
-
-# create CodeBuild IAM Role & attach Policy
-
+# Create CodeBuild IAM Role & attach Policy
 resource "aws_iam_role" "codebuild_role" {
   name = "${var.environment}-${var.project}-codebuild-role"
 
@@ -63,7 +59,7 @@ resource "aws_iam_policy" "codebuild_policy" {
   policy = jsonencode({
     Version = "2012-10-17",
     Statement = [
-        # for ecr access to pull and push docker images
+      # ECR access
       {
         Effect = "Allow",
         Action = [
@@ -72,36 +68,37 @@ resource "aws_iam_policy" "codebuild_policy" {
           "ecr:GetDownloadUrlForLayer",
           "ecr:BatchGetImage",
           "ecr:PutImage",
-          "ecr:InitiateLayerUpload",     
-          "ecr:UploadLayerPart",       
+          "ecr:InitiateLayerUpload",
+          "ecr:UploadLayerPart",
           "ecr:CompleteLayerUpload"
         ],
         Resource = "*"
       },
-      # for accessing remote s3 backend
+      # CloudWatch Logs
       {
         Effect = "Allow",
         Action = [
-          "s3:ListBucket"
+          "logs:CreateLogGroup",
+          "logs:CreateLogStream",
+          "logs:PutLogEvents"
         ],
+        Resource = [
+          "arn:aws:logs:${var.aws_region}:${data.aws_caller_identity.current.account_id}:log-group:/aws/codebuild/*",
+          "arn:aws:logs:${var.aws_region}:${data.aws_caller_identity.current.account_id}:log-group:/aws/codebuild/*:log-stream:*"
+        ]
+      },
+      # S3 Backend
+      {
+        Effect = "Allow",
+        Action = ["s3:ListBucket"],
         Resource = "arn:aws:s3:::${var.s3_bucket_name}"
       },
       {
-        "Effect": "Allow",
-        "Action": [
-            "ec2:DescribeAvailabilityZones"
-        ],
-        "Resource": "*"
-      },
-      {
         Effect = "Allow",
-        Action = [
-          "s3:GetObject",
-          "s3:PutObject"
-        ],
+        Action = ["s3:GetObject", "s3:PutObject"],
         Resource = "arn:aws:s3:::${var.s3_bucket_name}/*"
       },
-      # for accessing dynamodb table for locking
+      # DynamoDB
       {
         Effect = "Allow",
         Action = [
@@ -113,39 +110,48 @@ resource "aws_iam_policy" "codebuild_policy" {
         ],
         Resource = "arn:aws:dynamodb:${var.aws_region}:${data.aws_caller_identity.current.account_id}:table/${var.dynamodb_table_name}"
       },
-      # for accessing ssm parameter store
+      # SSM Parameters
       {
         Effect = "Allow",
-        Action = [
-          "ssm:GetParameter",
-          "ssm:GetParameters"
-        ],
-        Resource = "arn:aws:ssm:${var.aws_region}:${data.aws_caller_identity.current.account_id}:parameter/${var.environment}/*"
+        Action = ["ssm:GetParameter", "ssm:GetParameters"],
+        Resource = [
+          "arn:aws:ssm:${var.aws_region}:${data.aws_caller_identity.current.account_id}:parameter/${var.environment}/*",
+          "arn:aws:ssm:${var.aws_region}:${data.aws_caller_identity.current.account_id}:parameter/codebuild/dockerhub/password",
+          "arn:aws:ssm:${var.aws_region}:${data.aws_caller_identity.current.account_id}:parameter/infracost-api-key"
+        ]
       },
+      # KMS Decryption
       {
-       Effect = "Allow",
-       Action = [
-          "ssm:GetParameter",
-          "ssm:GetParameters"
-       ],
-       Resource = "arn:aws:ssm:${var.aws_region}:${data.aws_caller_identity.current.account_id}:parameter/codebuild/dockerhub/password"
-  },
-      {
-       Effect = "Allow",
-       Action = [
-          "ssm:GetParameter",
-          "ssm:GetParameters"
-       ],
-       Resource = "arn:aws:ssm:${var.aws_region}:${data.aws_caller_identity.current.account_id}:parameter/infracost-api-key"
-  },
-      # for kms key to decrypt 
+        Effect = "Allow",
+        Action = ["kms:Decrypt", "kms:GenerateDataKey"],
+        Resource = local.kms_key_arn
+      },
+      # EC2 VPC + Address Management
       {
         Effect = "Allow",
         Action = [
-          "kms:Decrypt",
-          "kms:GenerateDataKey"
+          "ec2:CreateVpc",
+          "ec2:DeleteVpc",
+          "ec2:DescribeVpcs",
+          "ec2:AllocateAddress",
+          "ec2:ReleaseAddress",
+          "ec2:AssociateAddress",
+          "ec2:DisassociateAddress",
+          "ec2:DescribeAddresses",
+          "ec2:DescribeAvailabilityZones"
         ],
-        Resource = local.kms_key_arn
+        Resource = "*"
+      },
+      # EventBridge
+      {
+        Effect = "Allow",
+        Action = [
+          "events:PutRule",
+          "events:DeleteRule",
+          "events:PutTargets",
+          "events:RemoveTargets"
+        ],
+        Resource = "arn:aws:events:${var.aws_region}:${data.aws_caller_identity.current.account_id}:rule/*"
       }
     ]
   })
@@ -162,9 +168,7 @@ resource "aws_ssm_parameter" "codebuild_role_arn" {
   value = aws_iam_role.codebuild_role.arn
 }
 
-
-# Create CodePipeline Role & Policy
-
+# CodePipeline Role & Policy
 resource "aws_iam_role" "codepipeline_role" {
   name = "${var.environment}-${var.project}-codepipeline-role"
 
@@ -184,7 +188,6 @@ resource "aws_iam_policy" "codepipeline_policy" {
   policy = jsonencode({
     Version = "2012-10-17",
     Statement = [
-        # code build access 
       {
         Effect = "Allow",
         Action = [
@@ -196,21 +199,14 @@ resource "aws_iam_policy" "codepipeline_policy" {
         ],
         Resource = "*"
       },
-      # for s3 artifacts access
       {
         Effect = "Allow",
-        Action = [
-          "s3:GetObject",
-          "s3:PutObject"
-        ],
+        Action = ["s3:GetObject", "s3:PutObject"],
         Resource = "arn:aws:s3:::${var.project}-*/*"
       },
-      # codepipeline to pass permissions to codebuild and codedeploy
       {
         Effect = "Allow",
-        Action = [
-          "iam:PassRole"
-        ],
+        Action = ["iam:PassRole"],
         Resource = "*",
         Condition = {
           StringEqualsIfExists = {
@@ -236,15 +232,13 @@ resource "aws_ssm_parameter" "codepipeline_role_arn" {
   value = aws_iam_role.codepipeline_role.arn
 }
 
-
-# Create CodeDeploy Role & Policy
-
+# CodeDeploy Role
 resource "aws_iam_role" "codedeploy_role" {
   name = "${var.environment}-${var.project}-codedeploy-role"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17",
-    Statement = [ {
+    Statement = [{
       Effect = "Allow",
       Principal = { Service = "codedeploy.amazonaws.com" },
       Action = "sts:AssumeRole"
@@ -271,7 +265,7 @@ resource "aws_iam_policy" "codedeploy_policy" {
           "elasticloadbalancing:*"
         ],
         Resource = "*"
-      }, 
+      }
     ]
   })
 }
@@ -286,32 +280,28 @@ resource "aws_ssm_parameter" "codedeploy_role_arn" {
   type  = "String"
   value = aws_iam_role.codedeploy_role.arn
 }
-# create lambda role
+
+# Lambda Role
 resource "aws_iam_role" "lambda_execution_role" {
   name = "${var.environment}-${var.project}-lambda-execution-role"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17",
-    Statement = [
-      {
-        Effect = "Allow",
-        Principal = {
-          Service = "lambda.amazonaws.com"
-        },
-        Action = "sts:AssumeRole"
-      }
-    ]
+    Statement = [{
+      Effect = "Allow",
+      Principal = { Service = "lambda.amazonaws.com" },
+      Action = "sts:AssumeRole"
+    }]
   })
 }
-# lambda basic execution role 
+
 resource "aws_iam_role_policy_attachment" "lambda_basic_execution_attach" {
   role       = aws_iam_role.lambda_execution_role.name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
 }
+
 resource "aws_ssm_parameter" "lambda_execution_role_arn" {
   name  = "/${var.environment}/lambda_execution_role_arn"
   type  = "String"
   value = aws_iam_role.lambda_execution_role.arn
 }
-
-
