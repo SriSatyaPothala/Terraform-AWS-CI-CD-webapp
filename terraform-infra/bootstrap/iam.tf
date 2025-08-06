@@ -84,6 +84,13 @@ resource "aws_iam_policy" "codebuild_policy" {
         Resource = "arn:aws:s3:::${var.s3_bucket_name}"
       },
       {
+        "Effect": "Allow",
+        "Action": [
+            "ec2:DescribeAvailabilityZones"
+        ],
+        "Resource": "*"
+      },
+      {
         Effect = "Allow",
         Action = [
           "s3:GetObject",
