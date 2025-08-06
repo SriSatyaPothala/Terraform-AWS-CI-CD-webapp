@@ -45,5 +45,5 @@ output "cloudwatch_asg_alarm" {
 }
 
 output "cloudwatch_event_rule" {
-  value = module.cloudwatch.pipeline_failure_event_rule
+  value = module.cloudwatch.pipeline_failure_event_rule_name
 }
