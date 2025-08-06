@@ -131,14 +131,26 @@ resource "aws_iam_policy" "codebuild_policy" {
         Effect = "Allow",
         Action = [
           "ec2:CreateVpc",
-          "ec2:DeleteVpc",
           "ec2:DescribeVpcs",
+          "ec2:CreateTags",
+          "ec2:DeleteVpc",
           "ec2:AllocateAddress",
-          "ec2:ReleaseAddress",
           "ec2:AssociateAddress",
-          "ec2:DisassociateAddress",
-          "ec2:DescribeAddresses",
-          "ec2:DescribeAvailabilityZones"
+          "ec2:ReleaseAddress",
+          "ec2:CreateNatGateway",
+          "ec2:ModifyVpcAttribute",
+          "ec2:DeleteNatGateway",
+          "ec2:Describe*"
+        ],
+        Resource = "*"
+      },
+      # lambda invocation permissions
+      {
+        Effect = "Allow",
+        Action = [
+           "lambda:AddPermission",
+           "lambda:GetPolicy",
+           "lambda:RemovePermission"
         ],
         Resource = "*"
       },
@@ -146,10 +158,13 @@ resource "aws_iam_policy" "codebuild_policy" {
       {
         Effect = "Allow",
         Action = [
-          "events:PutRule",
-          "events:DeleteRule",
-          "events:PutTargets",
-          "events:RemoveTargets"
+        "events:ListTagsForResource",
+        "events:ListTargetsByRule",
+        "events:PutRule",
+        "events:PutTargets",
+        "events:DescribeRule",
+        "events:DeleteRule",
+        "events:RemoveTargets"
         ],
         Resource = "arn:aws:events:${var.aws_region}:${data.aws_caller_identity.current.account_id}:rule/*"
       }
