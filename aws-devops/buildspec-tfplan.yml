@@ -15,12 +15,13 @@ env:
 phases:
   install:
     commands:
-      - curl -fsSL https://apt.releases.hashicorp.com/gpg | gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg
-      - echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" | tee /etc/apt/sources.list.d/hashicorp.list
-      - apt-get update && apt-get install terraform -y
-      - curl -sL https://github.com/infracost/infracost/releases/latest/download/infracost-linux-amd64.tar.gz | tar -xz -C /tmp
-      - mv /tmp/infracost-linux-amd64/infracost /usr/local/bin/
-      - infracost configure set api_key $INFRACOST_API_KEY
+     - echo "Installing Terraform and Infracost..."
+     - apt-get update && apt-get install -y gnupg software-properties-common curl unzip lsb-release
+     - curl -fsSL https://apt.releases.hashicorp.com/gpg | gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg
+     - echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" | tee /etc/apt/sources.list.d/hashicorp.list
+     - apt-get update && apt-get install terraform -y
+     - curl -fsSL https://raw.githubusercontent.com/infracost/infracost/master/scripts/install.sh | sh
+     - infracost configure set api_key $INFRACOST_API_KEY
 
   pre_build:
     commands:
