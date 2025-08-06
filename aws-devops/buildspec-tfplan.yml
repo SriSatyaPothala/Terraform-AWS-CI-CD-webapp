@@ -41,9 +41,10 @@ phases:
         EOF
       - terraform init -input=false
       - terraform validate
-      - terraform plan -input=false -var-file=$TF_VAR_file -out=tfplan
+      - echo "$TF_VAR_file" > dev_tfvars
+      - terraform plan -input=false -var-file=dev_tfvars -out=tfplan
       - terraform show -no-color tfplan > plan.txt
-      - infracost breakdown --path . --terraform-var-file=$TF_VAR_file --format json --out-file infracost-report.json
+      - infracost breakdown --path . --terraform-var-file=dev_tfvars --format json --out-file infracost-report.json
       - infracost output --input infracost-report.json --format table
 
   build:
