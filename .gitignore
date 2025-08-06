@@ -4,7 +4,7 @@
 .terraform/
 
 # backend files
-bootstrap/backend.tf
+terraform-infra/bootstrap/backend.tf
 
 # terraform varible files
 *.tfvars
