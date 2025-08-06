@@ -19,7 +19,7 @@ phases:
       - echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" | tee /etc/apt/sources.list.d/hashicorp.list
       - apt-get update && apt-get install terraform -y
       - curl -sL https://github.com/infracost/infracost/releases/latest/download/infracost-linux-amd64.tar.gz | tar -xz -C /tmp
-      - mv /tmp/infracost /usr/local/bin/
+      - mv /tmp/infracost-linux-amd64/infracost /usr/local/bin/
       - infracost configure set api_key $INFRACOST_API_KEY
 
   pre_build:
