@@ -1,0 +1,45 @@
+# terraform state files
+*.tfstate
+*.tfstate.*
+.terraform/
+
+# backend files
+bootstrap/backend.tf
+
+# terraform varible files
+*.tfvars
+*.tfvars.json
+dev.tfvars
+
+# terraform plan output
+*.tfplan
+
+# local override config
+override.tf
+override.tf.json
+
+#CLI configuration
+.terraformrc 
+terraform.rc 
+
+# aws credentials 
+*.pem 
+*.key
+*.crt 
+aws_credentials
+.env
+.env.* 
+
+# IDE/editor stuff 
+.vscode/
+.idea/
+*.swp 
+.DS_store
+
+# Log and debug files 
+*.log 
+
+# zip or output artifacts 
+*.zip
+build/
+output/
