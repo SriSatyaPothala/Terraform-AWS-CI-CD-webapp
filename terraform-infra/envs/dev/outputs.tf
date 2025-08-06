@@ -22,10 +22,6 @@ output "private_route_table_ids" {
   value = module.vpc.private_route_table_ids
 }
 
-output "ec2_instance_profile_name" {
-  value = module.iam.ec2_instance_profile_name
-}
-
 output "codebuild_role_arn" {
   value = module.iam.codebuild_role_arn
 }
