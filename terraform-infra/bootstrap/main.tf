@@ -163,3 +163,9 @@ resource "aws_ssm_parameter" "ami_id" {
   type  = "String"
   value = data.aws_ami.ubuntu.id
 }
+# s3 bucket for artifact storage
+module "s3" {
+  source      = "../modules/s3"
+  project     = var.project
+  environment = var.environment
+}

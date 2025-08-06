@@ -32,12 +32,6 @@ module "alb" {
   alb_sg_id         = module.security_group.alb_sg_id
   environment       = var.environment
 }
-
-module "s3" {
-  source      = "../../modules/s3"
-  environment = var.environment
-  project     = var.project
-}
 module "cloudwatch" {
   source               = "../../modules/cloudwatch"
   environment          = var.environment

@@ -39,3 +39,8 @@ resource "aws_s3_bucket_public_access_block" "artifact_bucket_block" {
   ignore_public_acls      = true
   restrict_public_buckets = true
 }
+resource "aws_ssm_parameter" "artifact_bucket_name" {
+  name  = "/${var.environment}/artifact_bucket_name"
+  type  = "String"
+  value = aws_s3_bucket.artifact_bucket.id
+}
