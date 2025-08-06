@@ -45,7 +45,8 @@ phases:
       - terraform plan -input=false -var-file=dev_tfvars -out=tfplan
       - terraform show -no-color tfplan > plan.txt
       - infracost breakdown --path . --terraform-var-file=dev_tfvars --format json --out-file infracost-report.json
-      - infracost output --input infracost-report.json --format table
+      - infracost output --path infracost-report.json --format table
+
 
   build:
     commands:
