@@ -13,12 +13,13 @@ resource "aws_lb" "app_alb" {
   }
 }
 
-resource "aws_lb_target_group" "app_tg" {
-  name     = "${var.environment}-tg"
-  port     = 80
-  protocol = "HTTP"
+# BLUE Target Group (Primary)
+resource "aws_lb_target_group" "app_tg_blue" {
+  name        = "${var.environment}-tg-blue"
+  port        = 80
+  protocol    = "HTTP"
   target_type = "instance"
-  vpc_id   = var.vpc_id
+  vpc_id      = var.vpc_id
 
   health_check {
     path                = "/"
@@ -30,11 +31,35 @@ resource "aws_lb_target_group" "app_tg" {
   }
 
   tags = {
-    Name        = "${var.environment}-tg"
+    Name        = "${var.environment}-tg-blue"
     Environment = var.environment
   }
 }
 
+# GREEN Target Group (Test Group)
+resource "aws_lb_target_group" "app_tg_green" {
+  name        = "${var.environment}-tg-green"
+  port        = 80
+  protocol    = "HTTP"
+  target_type = "instance"
+  vpc_id      = var.vpc_id
+
+  health_check {
+    path                = "/"
+    interval            = 30
+    timeout             = 5
+    healthy_threshold   = 3
+    unhealthy_threshold = 2
+    matcher             = "200"
+  }
+
+  tags = {
+    Name        = "${var.environment}-tg-green"
+    Environment = var.environment
+  }
+}
+
+# Listener (default to blue)
 resource "aws_lb_listener" "http" {
   load_balancer_arn = aws_lb.app_alb.arn
   port              = 80
@@ -42,8 +67,7 @@ resource "aws_lb_listener" "http" {
 
   default_action {
     type             = "forward"
-    target_group_arn = aws_lb_target_group.app_tg.arn
+    target_group_arn = aws_lb_target_group.app_tg_blue.arn
   }
 }
-
-# add listener on https with domain 
+# Add HTTPS listener if domain available 

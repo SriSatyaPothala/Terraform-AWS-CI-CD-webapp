@@ -22,7 +22,7 @@ module "ec2" {
   instance_type             = var.instance_type
   security_group_ids        = [module.security_group.ec2_sg_id]
   subnet_ids                = module.vpc.private_subnet_ids
-  alb_target_group_arn      = module.alb.target_group_arn
+  alb_target_group_arn      = module.alb.alb_target_group_blue_arn
 }
 
 module "alb" {

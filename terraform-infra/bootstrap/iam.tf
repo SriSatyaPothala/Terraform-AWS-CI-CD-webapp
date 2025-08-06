@@ -112,6 +112,14 @@ resource "aws_iam_policy" "codebuild_policy" {
         ],
         Resource = "arn:aws:ssm:${var.aws_region}:${data.aws_caller_identity.current.account_id}:parameter/${var.environment}/*"
       },
+      {
+       Effect = "Allow",
+       Action = [
+          "ssm:GetParameter",
+          "ssm:GetParameters"
+       ],
+       Resource = "arn:aws:ssm:${var.aws_region}:${data.aws_caller_identity.current.account_id}:parameter/infracost-api-key"
+  },
       # for kms key to decrypt 
       {
         Effect = "Allow",
@@ -238,10 +246,14 @@ resource "aws_iam_policy" "codedeploy_policy" {
           "ec2:Describe*",
           "autoscaling:Describe*",
           "autoscaling:UpdateAutoScalingGroup",
+          "autoscaling:CompleteLifecycleAction",
+          "autoscaling:PutLifecycleHook",
+          "autoscaling:DeleteLifecycleHook",
+          "autoscaling:RecordLifecycleActionHeartbeat",
           "elasticloadbalancing:*"
         ],
         Resource = "*"
-      }
+      }, 
     ]
   })
 }
