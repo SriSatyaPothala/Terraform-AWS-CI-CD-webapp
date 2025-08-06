@@ -109,24 +109,6 @@ resource "aws_key_pair" "ec2" {
   key_name   = "${var.environment}-ec2-key"
   public_key = tls_private_key.ec2.public_key_openssh
 }
-
-# Get latest Ubuntu AMI (optional: customize filter)
-data "aws_ami" "ubuntu" {
-  most_recent = true
-
-  filter {
-    name   = "name"
-    values = ["ubuntu/images/hvm-ssd/ubuntu-focal-20.04-amd64-server-*"]
-  }
-
-  filter {
-    name   = "virtualization-type"
-    values = ["hvm"]
-  }
-
-  owners = ["099720109477"] # Canonical
-}
-
 # SSM Parameters
 resource "aws_ssm_parameter" "kms_key_arn" {
   name  = "/${var.environment}/kms_key_arn"
@@ -161,7 +143,7 @@ resource "aws_ssm_parameter" "ec2_key_name" {
 resource "aws_ssm_parameter" "ami_id" {
   name  = "/${var.environment}/ami_id"
   type  = "String"
-  value = data.aws_ami.ubuntu.id
+  value = var.ubuntu_ami_id
 }
 # s3 bucket for artifact storage
 module "s3" {

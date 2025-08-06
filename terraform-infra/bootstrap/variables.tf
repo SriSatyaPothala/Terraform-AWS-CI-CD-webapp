@@ -19,3 +19,8 @@ variable "dynamodb_table_name" {
   type        = string
   description = "Name of the DynamoDB table for Terraform locking"
 }
+variable "ubuntu_ami_id" {
+  type        = string
+  description = "Fixed Ubuntu 20.04 AMI ID for ap-south-1"
+  default     = "ami-06cc5ebfb8571a147" # replace the version with the one that is desired 
+}

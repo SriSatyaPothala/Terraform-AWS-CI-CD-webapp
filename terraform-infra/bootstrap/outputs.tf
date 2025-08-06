@@ -19,8 +19,8 @@ output "ec2_key_name" {
 }
 
 output "ami_id" {
-  value       = data.aws_ami.ubuntu.id
-  description = "AMI ID stored in SSM"
+  value       = var.ubuntu_ami_id
+  description = "Fixed Ubuntu AMI ID stored in SSM"
 }
 
 

@@ -1,0 +1,27 @@
+version: 0.0
+os: linux
+
+files:
+  - source: /                          # files to be copied
+    destination: /home/ubuntu/app      
+
+hooks:
+  BeforeInstall:
+    - location: aws-devops/scripts/stop_container.sh
+      timeout: 60
+      runas: ubuntu
+
+  AfterInstall:
+    - location: aws-devops/scripts/pull_image.sh
+      timeout: 60
+      runas: ubuntu
+
+  ApplicationStart:
+    - location: aws-devops/scripts/start_container.sh
+      timeout: 60
+      runas: ubuntu
+
+  ValidateService:
+    - location: aws-devops/scripts/health_check.sh
+      timeout: 60
+      runas: ubuntu

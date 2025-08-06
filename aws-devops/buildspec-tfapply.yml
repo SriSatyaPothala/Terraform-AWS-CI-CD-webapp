@@ -1,0 +1,42 @@
+version: 0.2
+
+env:
+  variables:
+    TERRAFORM_WORKING_DIR: terraform-infra/envs/dev
+    AWS_DEFAULT_REGION: ap-south-1
+  parameter-store:
+    TF_VAR_file: "/dev/terraform/dev_tfvars"
+    BUCKET_NAME: "/dev/s3_bucket_name"
+    DYNAMODB_TABLE: "/dev/dynamodb_table_name"
+    KMS_KEY_ARN: "/dev/kms_key_arn"
+
+phases:
+  install:
+    commands:
+      - apt-get update && apt-get install -y unzip curl
+      - curl -fsSL https://apt.releases.hashicorp.com/gpg | gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg
+      - echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" | tee /etc/apt/sources.list.d/hashicorp.list
+      - apt-get update && apt-get install terraform -y
+
+  pre_build:
+    commands:
+      - cd $TERRAFORM_WORKING_DIR
+      - |
+        cat > backend.tf <<EOF
+        terraform {
+          backend "s3" {
+            bucket         = "${BUCKET_NAME}"
+            key            = "dev/terraform.tfstate"
+            region         = "${AWS_DEFAULT_REGION}"
+            dynamodb_table = "${DYNAMODB_TABLE}"
+            encrypt        = true
+            kms_key_id     = "${KMS_KEY_ARN}"
+          }
+        }
+        EOF
+      - terraform init -input=false
+      - terraform apply -input=false tfplan
+
+artifacts:
+  files:
+    - '**/*'
