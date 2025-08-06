@@ -21,7 +21,7 @@ resource "aws_launch_template" "ec2_template" {
 
   vpc_security_group_ids = var.security_group_ids
 
-  user_data = base64encode(templatefile("${path.module}/user_data.sh", {
+  user_data = base64encode(templatefile("${path.module}/user-data.sh", {
     environment = var.environment
     project     = var.project
     region      = var.aws_region
