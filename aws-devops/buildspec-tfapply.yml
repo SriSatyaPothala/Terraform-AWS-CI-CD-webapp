@@ -49,7 +49,9 @@ phases:
 
   build:
     commands:
-      - echo "$TF_VAR_file" > dev_tfvars
+      - printf "%s\n" "$TF_VAR_file" > dev_tfvars
+      - echo "Decoded tfvars file:"
+      - cat dev_tfvars
       - terraform plan -input=false -var-file=dev_tfvars -out=tfplan
       - terraform apply -input=false -var-file=dev_tfvars -auto-approve tfplan
 
