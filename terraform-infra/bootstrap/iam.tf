@@ -86,6 +86,9 @@ resource "aws_iam_policy" "codebuild_policy" {
           "elasticloadbalancing:DeregisterTargets",
           "elasticloadbalancing:ModifyTargetGroup",
           "elasticloadbalancing:AddTags",
+          "elasticloadbalancing:CreateLoadBalancer",
+          "elasticloadbalancing:DescribeTags",
+          "elasticloadbalancing:DescribeTargetGroupAttributes",
           "elasticloadbalancing:ModifyTargetGroupAttributes"
       ],
     Resource = "*"
