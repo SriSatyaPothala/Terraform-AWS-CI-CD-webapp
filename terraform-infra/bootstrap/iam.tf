@@ -300,7 +300,8 @@ resource "aws_iam_policy" "codepipeline_policy" {
           "codedeploy:GetDeployment",
           "codedeploy:GetApplicationRevision",
           "codedeploy:RegisterApplicationRevision",
-          "codedeploy:RegisterApplicationRevision"
+          "codedeploy:PutLifecycleEventHookExecutionStatus",
+          "codedeploy:GetDeploymentConfig"
         ],
         Resource = "*"
       },
@@ -320,7 +321,7 @@ resource "aws_iam_policy" "codepipeline_policy" {
       },
       {
         Effect = "Allow",
-        Action = ["s3:GetObject", "s3:PutObject"],
+        Action = ["s3:GetObject", "s3:PutObject", "s3:ListBucket", "s3:GetObjectVersion", "s3:GetBucketLocation", "s3:ListBucket" ],
         Resource = "arn:aws:s3:::${var.project}-*/*"
       },
       {
@@ -380,44 +381,62 @@ resource "aws_iam_policy" "codedeploy_policy" {
     Version = "2012-10-17",
     Statement = [
       {
-        Effect = "Allow",
-        Action = [
+        "Effect": "Allow",
+        "Action": [
           "ec2:Describe*",
-          "ec2:DescribeInstances",
-          "ec2:DescribeTags",
           "ec2:RunInstances",
           "ec2:CreateTags",
-          "iam:PassRole",
           "autoscaling:Describe*",
+          "autoscaling:CreateAutoScalingGroup",
+          "autoscaling:CreateLaunchConfiguration",
+          "autoscaling:DeleteAutoScalingGroup",
           "autoscaling:UpdateAutoScalingGroup",
           "autoscaling:CompleteLifecycleAction",
           "autoscaling:PutLifecycleHook",
-          "autoscaling:DescribeScalingActivities",
           "autoscaling:DeleteLifecycleHook",
-          "sns:Publish",
-          "cloudwatch:DescribeAlarms",
           "autoscaling:RecordLifecycleActionHeartbeat",
-          "autoscaling:DescribeAutoScalingGroups",
-          "autoscaling:DescribeLifecycleHooks",
-          "autoscaling:PutInstanceInStandby",
           "autoscaling:DetachInstances",
           "autoscaling:TerminateInstanceInAutoScalingGroup",
-          "autoscaling:RecordLifecycleActionHeartbeat",
-          "autoscaling:UpdateAutoScalingGroup",
-          "autoscaling:PutInstanceInService",
           "autoscaling:SuspendProcesses",
           "autoscaling:ResumeProcesses",
           "autoscaling:AttachInstances",
-          "autoscaling:DetachInstances",
           "autoscaling:EnterStandby",
           "autoscaling:ExitStandby",
           "autoscaling:SetDesiredCapacity",
-          "autoscaling:TerminateInstanceInAutoScalingGroup",
-          "elasticloadbalancing:*"
-
+          "elasticloadbalancing:*",
+          "sns:Publish",
+          "cloudwatch:DescribeAlarms"
         ],
-        Resource = "*"
+        "Resource": "*"
       },
+      {
+        "Effect": "Allow",
+        "Action": "iam:PassRole",
+        "Resource": [
+          "${aws_iam_role.ec2_role.arn}"
+        ],
+        "Condition": {
+          "StringEquals": {
+            "iam:PassedToService": [
+              "ec2.amazonaws.com",
+              "autoscaling.amazonaws.com"
+            ]
+          }
+        }
+      },
+      {
+        Effect = "Allow",
+        Action = [
+          "iam:CreateServiceLinkedRole"
+        ],
+        Resource = "*",
+        Condition = {
+          StringEquals = {
+            "iam:AWSServiceName" = "autoscaling.amazonaws.com"
+          }
+        }
+      },
+
       {
         Effect = "Allow",
         Action = [
