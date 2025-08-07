@@ -389,6 +389,11 @@ resource "aws_iam_policy" "codedeploy_policy" {
           "autoscaling:PutLifecycleHook",
           "autoscaling:DeleteLifecycleHook",
           "autoscaling:RecordLifecycleActionHeartbeat",
+          "autoscaling:DescribeAutoScalingGroups",
+          "autoscaling:DescribeLifecycleHooks",
+          "autoscaling:PutInstanceInStandby",
+          "autoscaling:RecordLifecycleActionHeartbeat",
+          "autoscaling:PutInstanceInService",
           "elasticloadbalancing:*"
 
         ],
