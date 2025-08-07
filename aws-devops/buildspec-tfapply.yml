@@ -45,7 +45,6 @@ phases:
 
   build:
     commands:
-      - cd $TERRAFORM_WORKING_DIR
       - echo "$TF_VAR_file" > dev.tfvars
       - terraform apply -input=false -var-file=dev.tfvars -auto-approve $CODEBUILD_SRC_DIR/tfplan
 
