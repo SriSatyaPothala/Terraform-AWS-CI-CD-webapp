@@ -32,12 +32,49 @@ resource "aws_iam_role_policy" "ec2_s3_policy" {
         Effect = "Allow",
         Action = [
           "s3:GetObject",
-          "s3:GetObjectVersion"
+          "s3:GetObjectVersion",
+          "s3:GetBucketLocation",
+          "codedeploy:*"
         ],
         Resource = [
           "arn:aws:s3:::${var.project}-${var.environment}-artifact-bucket",
           "arn:aws:s3:::${var.project}-${var.environment}-artifact-bucket/*"
         ]
+      },
+      {
+        Effect = "Allow",
+        Action = ["kms:Decrypt", "kms:GenerateDataKey"],
+        Resource = local.kms_key_arn
+      },
+      {
+        "Effect": "Allow",
+        "Action": [
+          "logs:CreateLogGroup",
+          "logs:CreateLogStream",
+          "logs:PutLogEvents"
+        ],
+        "Resource": "*"
+      },
+        {
+        "Effect": "Allow",
+        "Action": [
+          "ssm:StartSession",
+          "ssm:DescribeInstanceInformation",
+          "ssm:GetCommandInvocation",
+          "ssm:SendCommand",
+          "ssm:GetParameters",
+          "ssm:GetParameter",
+          "ssm:DescribeParameters"
+        ],
+        "Resource": "*"
+      },
+      {
+        "Effect": "Allow",
+        "Action": [
+          "ec2:DescribeInstances",
+          "ec2:DescribeInstanceStatus"
+        ],
+        "Resource": "*"
       }
     ]
   })
