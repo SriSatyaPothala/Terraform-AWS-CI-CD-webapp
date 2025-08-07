@@ -304,6 +304,13 @@ resource "aws_iam_policy" "codepipeline_policy" {
       {
         Effect = "Allow",
         Action = [
+          "codestar-connections:UseConnection"
+        ],
+        Resource = "arn:aws:codeconnections:ap-south-1:345594588323:connection/649b992a-c628-4dd4-aab4-1e0b6d9efc38"
+      },
+      {
+        Effect = "Allow",
+        Action = [
           "codedeploy:GetDeploymentConfig"
         ],
         Resource = "*"
@@ -431,6 +438,24 @@ resource "aws_iam_role_policy_attachment" "lambda_basic_execution_attach" {
   role       = aws_iam_role.lambda_execution_role.name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
 }
+resource "aws_iam_role_policy" "lambda_codepipeline_access" {
+  name = "${var.environment}-${var.project}-lambda-codepipeline-access"
+  role = aws_iam_role.lambda_execution_role.id
+
+  policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Effect = "Allow",
+        Action = [
+          "codepipeline:GetPipelineExecution"
+        ],
+        Resource = "arn:aws:codepipeline:ap-south-1:${data.aws_caller_identity.current.account_id}:${var.project}-pipeline"
+      }
+    ]
+  })
+}
+
 
 resource "aws_ssm_parameter" "lambda_execution_role_arn" {
   name  = "/${var.environment}/lambda_execution_role_arn"
