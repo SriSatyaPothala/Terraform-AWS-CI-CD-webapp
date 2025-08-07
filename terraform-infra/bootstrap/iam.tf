@@ -141,9 +141,10 @@ resource "aws_iam_policy" "codebuild_policy" {
           "s3:GetObject",
           "s3:PutObjectAcl"
         ],
-        Resource = "arn:aws:s3:::${var.s3_bucket_name}"
-        Resource = "arn:aws:s3:::${var.project}-${var.environment}-artifact-bucket"
-        Resource = "arn:aws:s3:::${var.project}-${var.environment}-artifact-bucket/*"
+        Resource = [
+          "arn:aws:s3:::${var.s3_bucket_name}",
+          "arn:aws:s3:::${var.project}-${var.environment}-artifact-bucket",
+          "arn:aws:s3:::${var.project}-${var.environment}-artifact-bucket/*" ]
 
       },
       {
@@ -319,6 +320,14 @@ resource "aws_iam_policy" "codepipeline_policy" {
         Effect = "Allow",
         Action = ["s3:GetObject", "s3:PutObject"],
         Resource = "arn:aws:s3:::${var.project}-*/*"
+      },
+      {
+        Effect = "Allow",
+        Action = [
+          "kms:Decrypt",
+          "kms:GenerateDataKey"
+        ],
+        Resource = local.kms_key_arn
       },
       {
         Effect = "Allow",
