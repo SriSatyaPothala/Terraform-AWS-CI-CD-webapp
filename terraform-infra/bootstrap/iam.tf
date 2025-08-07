@@ -113,7 +113,12 @@ resource "aws_iam_policy" "codebuild_policy" {
       # S3 Backend
       {
         Effect = "Allow",
-        Action = ["s3:ListBucket"],
+        Action = [
+          "s3:ListBucket",
+          "s3:PutObject",
+          "s3:GetObject",
+          "s3:PutObjectAcl"
+        ],
         Resource = "arn:aws:s3:::${var.s3_bucket_name}"
       },
       {
