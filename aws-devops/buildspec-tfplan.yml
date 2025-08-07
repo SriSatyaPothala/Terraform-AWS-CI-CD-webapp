@@ -61,6 +61,7 @@
         - docker push $ECR_REPO_URI:$IMAGE_TAG
         - cp ../aws-devops/appspec.yml $CODEBUILD_SRC_DIR/
         - cp -r ../aws-devops/scripts $CODEBUILD_SRC_DIR/
+        - cp ../aws-devops/buildspec-tfapply.yml $CODEBUILD_SRC_DIR/
 
   artifacts:
     files:
