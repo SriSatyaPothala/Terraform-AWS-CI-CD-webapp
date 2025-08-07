@@ -1,68 +1,74 @@
-version: 0.2
+  version: 0.2
 
-env:
-  variables:
-    TERRAFORM_WORKING_DIR: terraform-infra/envs/dev
-    AWS_DEFAULT_REGION: ap-south-1
-  parameter-store:
-    TF_VAR_file: "/dev/terraform/dev_tfvars"
-    BUCKET_NAME: "/dev/s3_bucket_name"
-    DYNAMODB_TABLE: "/dev/dynamodb_table_name"
-    KMS_KEY_ARN: "/dev/kms_key_arn"
-    ECR_REPO_URI: "/dev/ecr_repo_url"
-    INFRACOST_API_KEY: "infracost-api-key"
-    DOCKERHUB_PASSWORD : "/codebuild/dockerhub/password"
+  env:
+    variables:
+      TERRAFORM_WORKING_DIR: terraform-infra/envs/dev
+      AWS_DEFAULT_REGION: ap-south-1
+    parameter-store:
+      TF_VAR_file: "/dev/terraform/dev_tfvars"
+      BUCKET_NAME: "/dev/s3_bucket_name"
+      DYNAMODB_TABLE: "/dev/dynamodb_table_name"
+      KMS_KEY_ARN: "/dev/kms_key_arn"
+      ECR_REPO_URI: "/dev/ecr_repo_url"
+      INFRACOST_API_KEY: "infracost-api-key"
+      DOCKERHUB_PASSWORD : "/codebuild/dockerhub/password"
 
-phases:
-  install:
-    commands:
-     - echo "Installing Terraform and Infracost..."
-     - apt-get update && apt-get install -y gnupg software-properties-common curl unzip lsb-release
-     - curl -fsSL https://apt.releases.hashicorp.com/gpg | gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg
-     - echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" | tee /etc/apt/sources.list.d/hashicorp.list
-     - apt-get update && apt-get install terraform -y
-     - curl -fsSL https://raw.githubusercontent.com/infracost/infracost/master/scripts/install.sh | sh
-     - infracost configure set api_key $INFRACOST_API_KEY
+  phases:
+    install:
+      commands:
+      - echo "Installing Terraform and Infracost..."
+      - apt-get update && apt-get install -y gnupg software-properties-common curl unzip lsb-release
+      - curl -fsSL https://apt.releases.hashicorp.com/gpg | gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg
+      - echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" | tee /etc/apt/sources.list.d/hashicorp.list
+      - apt-get update && apt-get install terraform -y
+      - curl -fsSL https://raw.githubusercontent.com/infracost/infracost/master/scripts/install.sh | sh
+      - infracost configure set api_key $INFRACOST_API_KEY
 
-  pre_build:
-    commands:
-      - cd $TERRAFORM_WORKING_DIR
-      - |
-        cat > backend.tf <<EOF
-        terraform {
-          backend "s3" {
-            bucket         = "${BUCKET_NAME}"
-            key            = "dev/terraform.tfstate"
-            region         = "${AWS_DEFAULT_REGION}"
-            dynamodb_table = "${DYNAMODB_TABLE}"
-            encrypt        = true
-            kms_key_id     = "${KMS_KEY_ARN}"
+    pre_build:
+      commands:
+        - cd $TERRAFORM_WORKING_DIR
+        - |
+          cat > backend.tf <<EOF
+          terraform {
+            backend "s3" {
+              bucket         = "${BUCKET_NAME}"
+              key            = "dev/terraform.tfstate"
+              region         = "${AWS_DEFAULT_REGION}"
+              dynamodb_table = "${DYNAMODB_TABLE}"
+              encrypt        = true
+              kms_key_id     = "${KMS_KEY_ARN}"
+            }
           }
-        }
-        EOF
-      - terraform init -input=false
-      - terraform validate
-      - echo "$TF_VAR_file" > dev_tfvars
-      - terraform plan -input=false -var-file=dev_tfvars -out=tfplan
-      - terraform show -no-color tfplan > plan.txt
-      - infracost breakdown --path . --terraform-var-file=dev_tfvars --format json --out-file infracost-report.json
-      - infracost output --path infracost-report.json --format table
+          EOF
+        - terraform init -input=false
+        - terraform validate
+        - echo "$TF_VAR_file" > dev_tfvars
+        - terraform plan -input=false -var-file=dev_tfvars -out=tfplan
+        - terraform show -no-color tfplan > plan.txt
+        - infracost breakdown --path . --terraform-var-file=dev_tfvars --format json --out-file infracost-report.json
+        - infracost output --path infracost-report.json --format table
 
-  build:
-    commands:
-      - cd $CODEBUILD_SRC_DIR/nginx-app
-      - export IMAGE_TAG="build-$(date +%Y%m%d%H%M%S)"
-      - echo "$IMAGE_TAG"
-      - echo "$DOCKERHUB_PASSWORD" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
-      - docker build -t $ECR_REPO_URI:$IMAGE_TAG .
-      - echo "$ECR_REPO_URI:$IMAGE_TAG"
-      - echo $IMAGE_TAG > imageTag.txt  # Write the image tag to a file for later use
-      - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $ECR_REPO_URI
-      - docker push $ECR_REPO_URI:$IMAGE_TAG
+    build:
+      commands:
+        - cd $CODEBUILD_SRC_DIR/nginx-app
+        - export IMAGE_TAG="build-$(date +%Y%m%d%H%M%S)"
+        - echo "$IMAGE_TAG"
+        - echo "$DOCKERHUB_PASSWORD" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
+        - docker build -t $ECR_REPO_URI:$IMAGE_TAG .
+        - echo "$ECR_REPO_URI:$IMAGE_TAG"
+        - echo $IMAGE_TAG > imageTag.txt  # Write the image tag to a file for later use
+        - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $ECR_REPO_URI
+        - docker push $ECR_REPO_URI:$IMAGE_TAG
+        - cp ../aws-devops/appspec.yml $CODEBUILD_SRC_DIR/
+        - cp -r ../aws-devops/scripts $CODEBUILD_SRC_DIR/
 
-artifacts:
-  files:
-    - terraform-infra/envs/dev/tfplan
-    - terraform-infra/envs/dev/plan.txt
-    - terraform-infra/envs/dev/infracost-report.json
-    - nginx-app/imageTag.txt  # Artifact with the tag for use in next CodeBuild
+  artifacts:
+    files:
+      - terraform-infra/envs/dev/tfplan
+      - terraform-infra/envs/dev/plan.txt
+      - terraform-infra/envs/dev/infracost-report.json
+      - nginx-app/imageTag.txt  # Artifact with the tag for use in next CodeBuild
+      - buildspec-tfapply.yml
+      - appspec.yml
+      - scripts/*
+    discard-paths: yes
