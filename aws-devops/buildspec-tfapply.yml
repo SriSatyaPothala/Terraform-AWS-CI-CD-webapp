@@ -37,9 +37,6 @@ phases:
         }
         EOF
       - terraform init -input=false
-      - echo "$TF_VAR_file" > dev.tfvars
-      - terraform state list | grep module.alb.aws_lb_target_group.app_tg_blue || terraform import -var-file="dev.tfvars" module.alb.aws_lb_target_group.app_tg_blue arn:aws:elasticloadbalancing:ap-south-1:345594588323:targetgroup/dev-tg-blue/e97a9d51960457f8
-      - terraform state list | grep module.alb.aws_lb_target_group.app_tg_green || terraform import -var-file="dev.tfvars" module.alb.aws_lb_target_group.app_tg_green arn:aws:elasticloadbalancing:ap-south-1:345594588323:targetgroup/dev-tg-green/0e2994f7893a8640
 
   build:
     commands:
