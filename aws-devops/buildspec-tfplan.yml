@@ -79,6 +79,6 @@
       - appspec.yml
       - backend.tf
       - scripts/*
-      - terraform-infra/envs/dev/ec2/user-data.sh
+      - terraform-infra/modules/ec2/user-data.sh
 
   discard-paths: no
