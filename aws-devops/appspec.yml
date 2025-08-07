@@ -13,6 +13,9 @@ hooks:
       runas: ubuntu
 
   AfterInstall:
+    - location: scripts/change-ownership.sh
+      timeout: 60
+      runas: root
     - location: scripts/pull-image.sh
       timeout: 60
       runas: ubuntu
