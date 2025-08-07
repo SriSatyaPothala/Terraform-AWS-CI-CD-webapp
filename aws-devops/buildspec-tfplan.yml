@@ -1,5 +1,5 @@
   version: 0.2
-
+  # add environmental variables and ssm parameters
   env:
     variables:
       TERRAFORM_WORKING_DIR: terraform-infra/envs/dev
