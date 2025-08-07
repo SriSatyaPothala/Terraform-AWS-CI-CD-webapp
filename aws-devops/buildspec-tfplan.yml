@@ -52,10 +52,10 @@ phases:
     commands:
       - cd $CODEBUILD_SRC_DIR/nginx-app
       - export IMAGE_TAG="build-$(date +%Y%m%d%H%M%S)"
-      - echo "Generated IMAGE_TAG: $IMAGE_TAG"
+      - echo "$IMAGE_TAG"
       - echo "$DOCKERHUB_PASSWORD" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
       - docker build -t $ECR_REPO_URI:$IMAGE_TAG .
-      - echo "Pushing image: $ECR_REPO_URI:$IMAGE_TAG"
+      - echo "$ECR_REPO_URI:$IMAGE_TAG"
       - echo $IMAGE_TAG > imageTag.txt  # Write the image tag to a file for later use
       - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $ECR_REPO_URI
       - docker push $ECR_REPO_URI:$IMAGE_TAG
