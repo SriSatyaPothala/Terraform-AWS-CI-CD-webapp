@@ -121,6 +121,15 @@ resource "aws_iam_policy" "codebuild_policy" {
         Action = ["s3:GetObject", "s3:PutObject"],
         Resource = "arn:aws:s3:::${var.s3_bucket_name}/*"
       },
+      {
+        Effect = "Allow",
+        Action = [
+          "cloudwatch:PutMetricAlarm",
+          "cloudwatch:DeleteAlarms",
+          "cloudwatch:DescribeAlarms"
+        ],
+      "Resource": "*"
+      },
       # DynamoDB
       {
         Effect = "Allow",

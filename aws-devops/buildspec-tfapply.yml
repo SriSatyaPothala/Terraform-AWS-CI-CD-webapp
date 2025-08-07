@@ -37,6 +37,9 @@ phases:
         }
         EOF
       - terraform init -input=false
+      - echo "Importing existing Target Group..."
+      - terraform import module.alb.aws_lb_target_group.app_tg_blue arn:aws:elasticloadbalancing:ap-south-1:345594588323:targetgroup/dev-tg-blue/e97a9d51960457f8 || echo "Already imported or not required"
+
 
   build:
     commands:
