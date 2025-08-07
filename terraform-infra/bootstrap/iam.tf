@@ -88,6 +88,7 @@ resource "aws_iam_policy" "codebuild_policy" {
           "elasticloadbalancing:AddTags",
           "elasticloadbalancing:CreateLoadBalancer",
           "elasticloadbalancing:DescribeTags",
+          "elasticloadbalancing:DescribeLoadBalancerAttributes",
           "elasticloadbalancing:ModifyLoadBalancerAttributes",
           "elasticloadbalancing:DescribeTargetGroupAttributes",
           "elasticloadbalancing:ModifyTargetGroupAttributes"
