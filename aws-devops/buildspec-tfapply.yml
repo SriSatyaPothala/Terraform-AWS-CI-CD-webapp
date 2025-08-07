@@ -40,8 +40,8 @@ phases:
 
   build:
     commands:
-      - aws ssm get-parameter --name "${TF_VAR_file}" --with-decryption --query "Parameter.Value" --output text > dev.tfvars
-      - terraform apply -input=false -var-file=dev.tfvars -auto-approve tfplan
+      - echo "$TF_VAR_file" > dev_tfvars
+      - terraform apply -input=false -var-file=dev_tfvars -auto-approve tfplan
 
 artifacts:
   files:
