@@ -1,7 +1,10 @@
 #!/bin/bash
 
 apt update -y
-apt install -y docker.io ruby-full wget
+apt install -y docker.io ruby-full wget unzip awscli
+
+#add the ubuntu user to the docker group
+usermod -aG docker ubuntu
 
 systemctl start docker
 systemctl enable docker
