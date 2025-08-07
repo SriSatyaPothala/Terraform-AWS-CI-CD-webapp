@@ -368,7 +368,7 @@ resource "aws_iam_role" "codedeploy_role" {
       Principal = { Service = "codedeploy.amazonaws.com" },
       Action = "sts:AssumeRole"
     }]
-  })
+  })  
 }
 
 resource "aws_iam_policy" "codedeploy_policy" {
@@ -392,7 +392,10 @@ resource "aws_iam_policy" "codedeploy_policy" {
           "autoscaling:DescribeAutoScalingGroups",
           "autoscaling:DescribeLifecycleHooks",
           "autoscaling:PutInstanceInStandby",
+          "autoscaling:DetachInstances",
+          "autoscaling:TerminateInstanceInAutoScalingGroup",
           "autoscaling:RecordLifecycleActionHeartbeat",
+          "autoscaling:UpdateAutoScalingGroup",
           "autoscaling:PutInstanceInService",
           "elasticloadbalancing:*"
 
