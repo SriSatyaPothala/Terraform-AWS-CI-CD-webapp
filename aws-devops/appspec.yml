@@ -3,25 +3,26 @@ os: linux
 
 files:
   - source: /                          # files to be copied
-    destination: /home/ubuntu/app      
+    destination: /home/ubuntu/app  
+    overwrite: yes    
 
 hooks:
   BeforeInstall:
-    - location: aws-devops/scripts/stop_container.sh
+    - location: stop_container.sh
       timeout: 60
       runas: ubuntu
 
   AfterInstall:
-    - location: aws-devops/scripts/pull_image.sh
+    - location: pull_image.sh
       timeout: 60
       runas: ubuntu
 
   ApplicationStart:
-    - location: aws-devops/scripts/start_container.sh
+    - location: start_container.sh
       timeout: 60
       runas: ubuntu
 
   ValidateService:
-    - location: aws-devops/scripts/health_check.sh
+    - location: health_check.sh
       timeout: 60
       runas: ubuntu

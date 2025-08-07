@@ -37,12 +37,18 @@ phases:
         }
         EOF
       - terraform init -input=false
+      - cd $CODEBUILD_SRC_DIR
+      - echo "Listing contents:"
+      - find .
+      - cat imageTag.txt > $CODEBUILD_SRC_DIR/nginx-app/imageTag.txt 
+      - export IMAGE_TAG=$(cat imageTag.txt)
+      - echo "$IMAGE_TAG"
 
   build:
     commands:
+      - cd $TERRAFORM_WORKING_DIR
       - echo "$TF_VAR_file" > dev.tfvars
-      - terraform plan -input=false -var-file=dev.tfvars -out=tfplan
-      - terraform apply -input=false -var-file=dev.tfvars -auto-approve tfplan
+      - terraform apply -input=false -var-file=dev.tfvars -auto-approve $CODEBUILD_SRC_DIR/tfplan
 
 artifacts:
   files:

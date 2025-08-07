@@ -21,6 +21,26 @@ resource "aws_iam_role_policy_attachment" "ec2_cloudwatch_agent" {
   role       = aws_iam_role.ec2_role.name
   policy_arn = "arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy"
 }
+resource "aws_iam_role_policy" "ec2_ecr_pull" {
+  name = "${var.environment}-${var.project}-ec2-ecr-pull"
+  role = aws_iam_role.ec2_role.id
+
+  policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Effect = "Allow",
+        Action = [
+          "ecr:GetAuthorizationToken",
+          "ecr:BatchCheckLayerAvailability",
+          "ecr:GetDownloadUrlForLayer",
+          "ecr:BatchGetImage"
+        ],
+        Resource = "*"
+      }
+    ]
+  })
+}
 
 resource "aws_iam_instance_profile" "ec2_instance_profile" {
   name = "${var.environment}-${var.project}-ec2-instance-profile"
@@ -283,6 +303,13 @@ resource "aws_iam_policy" "codepipeline_policy" {
       },
       {
         Effect = "Allow",
+        Action = [
+          "codedeploy:GetDeploymentConfig"
+        ],
+        Resource = "*"
+      },
+      {
+        Effect = "Allow",
         Action = ["s3:GetObject", "s3:PutObject"],
         Resource = "arn:aws:s3:::${var.project}-*/*"
       },
@@ -338,6 +365,8 @@ resource "aws_iam_policy" "codedeploy_policy" {
         Effect = "Allow",
         Action = [
           "ec2:Describe*",
+          "ec2:DescribeInstances",
+          "ec2:DescribeTags",
           "autoscaling:Describe*",
           "autoscaling:UpdateAutoScalingGroup",
           "autoscaling:CompleteLifecycleAction",
