@@ -8,21 +8,21 @@ files:
 
 hooks:
   BeforeInstall:
-    - location: scripts/stop_container.sh
+    - location: scripts/stop-container.sh
       timeout: 60
       runas: ubuntu
 
   AfterInstall:
-    - location: scripts/pull_image.sh
+    - location: scripts/pull-image.sh
       timeout: 60
       runas: ubuntu
 
   ApplicationStart:
-    - location: scripts/start_container.sh
+    - location: scripts/start-container.sh
       timeout: 60
       runas: ubuntu
 
   ValidateService:
-    - location: scripts/health_check.sh
+    - location: scripts/health-check.sh
       timeout: 60
       runas: ubuntu
