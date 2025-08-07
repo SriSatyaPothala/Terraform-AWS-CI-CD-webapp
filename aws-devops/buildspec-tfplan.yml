@@ -63,15 +63,21 @@
         - cp -r ../aws-devops/scripts $CODEBUILD_SRC_DIR/
         - cp ../aws-devops/buildspec-tfapply.yml $CODEBUILD_SRC_DIR/
         - cp -r ../terraform-infra/envs/dev/backend.tf $CODEBUILD_SRC_DIR/
-
+        - cp -r ../terraform-infra/envs/dev/.terraform.lock.hcl $CODEBUILD_SRC_DIR/
+        - cp -r ../terraform-infra/envs/dev/.terraform/**/*
+        - cd $CODEBUILD_SRC_DIR/
+        - find .
   artifacts:
     files:
       - terraform-infra/envs/dev/tfplan
       - terraform-infra/envs/dev/plan.txt
       - terraform-infra/envs/dev/infracost-report.json
+      - terraform-infra/envs/dev/.terraform.lock.hcl
+      - terraform-infra/envs/dev/.terraform/**/*
       - nginx-app/imageTag.txt  # Artifact with the tag for use in next CodeBuild
       - buildspec-tfapply.yml
       - appspec.yml
       - backend.tf
       - scripts/*
-    discard-paths: yes
+
+  discard-paths: no
