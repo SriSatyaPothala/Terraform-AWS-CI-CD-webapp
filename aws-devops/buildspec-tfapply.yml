@@ -39,9 +39,6 @@ phases:
       - cd $CODEBUILD_SRC_DIR
       - echo "Listing contents:"
       - find .
-      - cat imageTag.txt > $CODEBUILD_SRC_DIR/nginx-app/imageTag.txt 
-      - export IMAGE_TAG=$(cat imageTag.txt)
-      - echo "$IMAGE_TAG"
 
   build:
     commands:
