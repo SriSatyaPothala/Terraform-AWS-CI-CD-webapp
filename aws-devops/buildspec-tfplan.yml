@@ -62,6 +62,7 @@
         - cp ../aws-devops/appspec.yml $CODEBUILD_SRC_DIR/
         - cp -r ../aws-devops/scripts $CODEBUILD_SRC_DIR/
         - cp ../aws-devops/buildspec-tfapply.yml $CODEBUILD_SRC_DIR/
+        - cp -r ../terraform-infra/envs/dev/backend.tf $CODEBUILD_SRC_DIR/
 
   artifacts:
     files:
@@ -71,5 +72,6 @@
       - nginx-app/imageTag.txt  # Artifact with the tag for use in next CodeBuild
       - buildspec-tfapply.yml
       - appspec.yml
+      - backend.tf
       - scripts/*
     discard-paths: yes

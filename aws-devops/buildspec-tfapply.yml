@@ -22,7 +22,6 @@ phases:
 
   pre_build:
     commands:
-      - cd $TERRAFORM_WORKING_DIR
       - |
         cat > backend.tf <<EOF
         terraform {
