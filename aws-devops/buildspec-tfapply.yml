@@ -40,21 +40,20 @@ phases:
       - echo "$TF_VAR_file" > dev.tfvars
       - cat dev.tfvars
       - echo "Importing ALB..."
-      - terraform import -var-file="dev_tfvars" module.alb.aws_lb.app_alb arn:aws:elasticloadbalancing:ap-south-1:345594588323:loadbalancer/app/dev-alb/bd9cd20d111ff758 || echo "ALB already imported or not required"
+      - terraform import -var-file="dev.tfvars" module.alb.aws_lb.app_alb arn:aws:elasticloadbalancing:ap-south-1:345594588323:loadbalancer/app/dev-alb/bd9cd20d111ff758 || echo "ALB already imported or not required"
 
       - echo "Importing Target Group Blue..."
-      - terraform import -var-file="dev_tfvars" module.alb.aws_lb_target_group.app_tg_blue arn:aws:elasticloadbalancing:ap-south-1:345594588323:targetgroup/dev-tg-blue/e97a9d51960457f8 || echo "TG Blue already imported or not required"
+      - terraform import -var-file="dev.tfvars" module.alb.aws_lb_target_group.app_tg_blue arn:aws:elasticloadbalancing:ap-south-1:345594588323:targetgroup/dev-tg-blue/e97a9d51960457f8 || echo "TG Blue already imported or not required"
 
       - echo "Importing Target Group Green..."
-      - terraform import -var-file="dev_tfvars" module.alb.aws_lb_target_group.app_tg_green arn:aws:elasticloadbalancing:ap-south-1:345594588323:targetgroup/dev-tg-green/0e2994f7893a8640 || echo "TG Green already imported or not required"
+      - terraform import -var-file="dev.tfvars" module.alb.aws_lb_target_group.app_tg_green arn:aws:elasticloadbalancing:ap-south-1:345594588323:targetgroup/dev-tg-green/0e2994f7893a8640 || echo "TG Green already imported or not required"
 
 
   build:
     commands:
       - echo "$TF_VAR_file" > dev.tfvars
-      - cat dev.tfvars
-      - terraform plan -input=false -var-file=dev_tfvars -out=tfplan
-      - terraform apply -input=false -var-file=dev_tfvars -auto-approve tfplan
+      - terraform plan -input=false -var-file=dev.tfvars -out=tfplan
+      - terraform apply -input=false -var-file=dev.tfvars -auto-approve tfplan
 
 artifacts:
   files:
