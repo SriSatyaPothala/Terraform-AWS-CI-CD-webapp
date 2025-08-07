@@ -124,9 +124,12 @@ resource "aws_iam_policy" "codebuild_policy" {
       {
         Effect = "Allow",
         Action = [
+          "cloudwatch:ListTagsForResource",
           "cloudwatch:PutMetricAlarm",
           "cloudwatch:DeleteAlarms",
-          "cloudwatch:DescribeAlarms"
+          "cloudwatch:DescribeAlarms",
+          "cloudwatch:TagResource",
+          "cloudwatch:UntagResource"
         ],
       "Resource": "*"
       },
