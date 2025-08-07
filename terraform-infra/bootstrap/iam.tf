@@ -268,6 +268,7 @@ resource "aws_iam_policy" "codebuild_policy" {
           "ec2:DeleteNatGateway",
           "ec2:Describe*",
           "ec2:CreateSecurityGroup",
+          "ec2:CreateLaunchTemplateVersion",
           "ec2:DeleteSecurityGroup",
           "ec2:AuthorizeSecurityGroupIngress",
           "ec2:AuthorizeSecurityGroupEgress",
