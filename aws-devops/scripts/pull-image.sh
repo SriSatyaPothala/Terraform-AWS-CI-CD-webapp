@@ -1,7 +1,7 @@
 #!/bin/bash
 
 REGION="ap-south-1"
-IMAGE_TAG=$(cat /home/ubuntu/app/imageTag.txt)
+IMAGE_TAG=$(cat /home/ubuntu/app/nginx-app/imageTag.txt)
 ECR_REPO_URI="$(aws ssm get-parameter --name "/dev/ecr_repo_url" --with-decryption --region $REGION --query 'Parameter.Value' --output text)"
 
 # Authenticate to ECR
