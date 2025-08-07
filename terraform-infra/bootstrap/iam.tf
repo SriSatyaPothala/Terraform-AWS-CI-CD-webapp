@@ -345,9 +345,30 @@ resource "aws_iam_policy" "codedeploy_policy" {
           "autoscaling:DeleteLifecycleHook",
           "autoscaling:RecordLifecycleActionHeartbeat",
           "elasticloadbalancing:*"
+
         ],
         Resource = "*"
-      }
+      },
+      {
+        Effect = "Allow",
+        Action = [
+          "s3:GetObject",
+          "s3:GetObjectVersion"
+        ],
+        Resource = [
+          "arn:aws:s3:::${var.project}-${var.environment}-artifact-bucket",
+          "arn:aws:s3:::${var.project}-${var.environment}-artifact-bucket/*"
+        ]
+    },
+    {
+    Effect = "Allow",
+    Action = [
+      "logs:CreateLogGroup",
+      "logs:CreateLogStream",
+      "logs:PutLogEvents"
+      ],
+      Resource = "*"
+    }
     ]
   })
 }
