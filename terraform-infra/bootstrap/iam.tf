@@ -392,7 +392,10 @@ resource "aws_iam_policy" "codedeploy_policy" {
           "autoscaling:UpdateAutoScalingGroup",
           "autoscaling:CompleteLifecycleAction",
           "autoscaling:PutLifecycleHook",
+          "autoscaling:DescribeScalingActivities",
           "autoscaling:DeleteLifecycleHook",
+          "sns:Publish",
+          "cloudwatch:DescribeAlarms",
           "autoscaling:RecordLifecycleActionHeartbeat",
           "autoscaling:DescribeAutoScalingGroups",
           "autoscaling:DescribeLifecycleHooks",
@@ -413,8 +416,7 @@ resource "aws_iam_policy" "codedeploy_policy" {
           "elasticloadbalancing:*"
 
         ],
-      Resource = [ "arn:aws:autoscaling:${var.aws_region}:${data.aws_caller_identity.current.account_id}:autoScalingGroup:*:autoScalingGroupName/${var.project}-${var.environment}-asg"
-      ]
+        Resource = "*"
       },
       {
         Effect = "Allow",
