@@ -122,6 +122,9 @@ resource "aws_iam_policy" "codebuild_policy" {
           "s3:PutObjectAcl"
         ],
         Resource = "arn:aws:s3:::${var.s3_bucket_name}"
+        Resource = "arn:aws:s3:::${var.project}-${var.environment}-artifact-bucket"
+        Resource = "arn:aws:s3:::${var.project}-${var.environment}-artifact-bucket/*"
+
       },
       {
         Effect = "Allow",
