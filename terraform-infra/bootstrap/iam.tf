@@ -298,6 +298,8 @@ resource "aws_iam_policy" "codepipeline_policy" {
           "codebuild:BatchGetBuilds",
           "codedeploy:CreateDeployment",
           "codedeploy:GetDeployment",
+          "codedeploy:GetApplicationRevision",
+          "codedeploy:RegisterApplicationRevision",
           "codedeploy:RegisterApplicationRevision"
         ],
         Resource = "*"
@@ -383,6 +385,9 @@ resource "aws_iam_policy" "codedeploy_policy" {
           "ec2:Describe*",
           "ec2:DescribeInstances",
           "ec2:DescribeTags",
+          "ec2:RunInstances",
+          "ec2:CreateTags",
+          "iam:PassRole",
           "autoscaling:Describe*",
           "autoscaling:UpdateAutoScalingGroup",
           "autoscaling:CompleteLifecycleAction",
@@ -397,10 +402,19 @@ resource "aws_iam_policy" "codedeploy_policy" {
           "autoscaling:RecordLifecycleActionHeartbeat",
           "autoscaling:UpdateAutoScalingGroup",
           "autoscaling:PutInstanceInService",
+          "autoscaling:SuspendProcesses",
+          "autoscaling:ResumeProcesses",
+          "autoscaling:AttachInstances",
+          "autoscaling:DetachInstances",
+          "autoscaling:EnterStandby",
+          "autoscaling:ExitStandby",
+          "autoscaling:SetDesiredCapacity",
+          "autoscaling:TerminateInstanceInAutoScalingGroup",
           "elasticloadbalancing:*"
 
         ],
-        Resource = "*"
+      Resource = [ "arn:aws:autoscaling:${var.aws_region}:${data.aws_caller_identity.current.account_id}:autoScalingGroup:*:autoScalingGroupName/${var.project}-${var.environment}-asg"
+      ]
       },
       {
         Effect = "Allow",
