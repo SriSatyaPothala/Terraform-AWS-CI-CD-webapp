@@ -21,6 +21,28 @@ resource "aws_iam_role_policy_attachment" "ec2_cloudwatch_agent" {
   role       = aws_iam_role.ec2_role.name
   policy_arn = "arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy"
 }
+resource "aws_iam_role_policy" "ec2_s3_policy" {
+  name = "${var.environment}-${var.project}-ec2-s3"
+  role = aws_iam_role.ec2_role.id
+
+  policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Effect = "Allow",
+        Action = [
+          "s3:GetObject",
+          "s3:GetObjectVersion"
+        ],
+        Resource = [
+          "arn:aws:s3:::${var.project}-${var.environment}-artifact-bucket",
+          "arn:aws:s3:::${var.project}-${var.environment}-artifact-bucket/*"
+        ]
+      }
+    ]
+  })
+}
+
 resource "aws_iam_role_policy" "ec2_ecr_pull" {
   name = "${var.environment}-${var.project}-ec2-ecr-pull"
   role = aws_iam_role.ec2_role.id
@@ -41,6 +63,7 @@ resource "aws_iam_role_policy" "ec2_ecr_pull" {
     ]
   })
 }
+
 
 resource "aws_iam_instance_profile" "ec2_instance_profile" {
   name = "${var.environment}-${var.project}-ec2-instance-profile"
@@ -380,12 +403,19 @@ resource "aws_iam_policy" "codedeploy_policy" {
   policy = jsonencode({
     Version = "2012-10-17",
     Statement = [
+       {
+        Effect = "Allow",
+        Action = [
+                "iam:PassRole",
+                "ec2:RunInstances",
+                "ec2:CreateTags"
+        ],
+        Resource = "*"
+       },
       {
         "Effect": "Allow",
         "Action": [
           "ec2:Describe*",
-          "ec2:RunInstances",
-          "ec2:CreateTags",
           "autoscaling:Describe*",
           "autoscaling:CreateAutoScalingGroup",
           "autoscaling:CreateLaunchConfiguration",
@@ -393,6 +423,11 @@ resource "aws_iam_policy" "codedeploy_policy" {
           "autoscaling:UpdateAutoScalingGroup",
           "autoscaling:CompleteLifecycleAction",
           "autoscaling:PutLifecycleHook",
+          "sts:GetCallerIdentity",
+          "ecr:GetAuthorizationToken",
+          "ecr:BatchGetImage",
+          "sqs:ListQueues",
+          "ec2:DescribeSpotPriceHistory",
           "autoscaling:DeleteLifecycleHook",
           "autoscaling:RecordLifecycleActionHeartbeat",
           "autoscaling:DetachInstances",
@@ -408,21 +443,6 @@ resource "aws_iam_policy" "codedeploy_policy" {
           "cloudwatch:DescribeAlarms"
         ],
         "Resource": "*"
-      },
-      {
-        "Effect": "Allow",
-        "Action": "iam:PassRole",
-        "Resource": [
-          "${aws_iam_role.ec2_role.arn}"
-        ],
-        "Condition": {
-          "StringEquals": {
-            "iam:PassedToService": [
-              "ec2.amazonaws.com",
-              "autoscaling.amazonaws.com"
-            ]
-          }
-        }
       },
       {
         Effect = "Allow",
@@ -443,11 +463,8 @@ resource "aws_iam_policy" "codedeploy_policy" {
           "s3:GetObject",
           "s3:GetObjectVersion"
         ],
-        Resource = [
-          "arn:aws:s3:::${var.project}-${var.environment}-artifact-bucket",
-          "arn:aws:s3:::${var.project}-${var.environment}-artifact-bucket/*"
-        ]
-    },
+        Resource = "*"
+       },
     {
     Effect = "Allow",
     Action = [
