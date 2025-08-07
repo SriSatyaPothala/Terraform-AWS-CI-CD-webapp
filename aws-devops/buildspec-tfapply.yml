@@ -22,6 +22,7 @@ phases:
 
   pre_build:
     commands:
+      - cd $TERRAFORM_WORKING_DIR
       - |
         cat > backend.tf <<EOF
         terraform {
@@ -35,17 +36,14 @@ phases:
           }
         }
         EOF
-      - terraform init -input=false
-      - cd $CODEBUILD_SRC_DIR
-      - echo "Listing contents:"
-      - find .
+      - terraform init -input=false -lockfile=readonly
 
   build:
     commands:
       - echo "$TF_VAR_file" > dev.tfvars
-      - terraform apply -input=false -var-file=dev.tfvars -auto-approve $CODEBUILD_SRC_DIR/tfplan
+      - terraform apply -input=false -var-file=dev.tfvars -auto-approve tfplan
 
 artifacts:
   files:
     - '**/*'
-discard-paths: yes
+discard-paths: no
