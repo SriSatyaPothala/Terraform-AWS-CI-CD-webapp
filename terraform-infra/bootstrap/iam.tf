@@ -85,6 +85,7 @@ resource "aws_iam_policy" "codebuild_policy" {
           "elasticloadbalancing:RegisterTargets",
           "elasticloadbalancing:DeregisterTargets",
           "elasticloadbalancing:ModifyTargetGroup",
+          "elasticloadbalancing:AddTags",
           "elasticloadbalancing:ModifyTargetGroupAttributes"
       ],
     Resource = "*"
@@ -174,7 +175,9 @@ resource "aws_iam_policy" "codebuild_policy" {
           "ec2:CreateRoute",
           "ec2:AssociateRouteTable",
           "ec2:CreateRouteTable",
-          "ec2:DeleteRouteTable"
+          "ec2:DeleteRouteTable",
+          "ec2:CreateLaunchTemplate",
+          "ec2:ModifySubnetAttribute",
           ],
         Resource = "*"
       },
