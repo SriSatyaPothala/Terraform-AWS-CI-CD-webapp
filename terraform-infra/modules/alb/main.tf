@@ -67,10 +67,22 @@ resource "aws_lb_listener" "http" {
 
   default_action {
     type             = "forward"
-    target_group_arn = aws_lb_target_group.app_tg_blue.arn
+    forward {
+      target_group {
+        arn    = aws_lb_target_group.app_tg_blue.arn
+        weight = 100 # Initially all traffic goes to blue
+      }
+      target_group {
+        arn    = aws_lb_target_group.app_tg_green.arn
+        weight = 0   # No traffic goes to green initially
+      }
   }
-  lifecycle {
-    ignore_changes = [default_action]
+  }
+   lifecycle {
+    ignore_changes = [
+      default_action.0.forward.0.target_group, # CodeDeploy will modify this block to switch TGs
+    ]
   }
 }
+
 # Add HTTPS listener if domain available 
