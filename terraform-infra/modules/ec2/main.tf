@@ -49,7 +49,6 @@ resource "aws_autoscaling_group" "asg" {
     id      = aws_launch_template.ec2_template.id
     version = "$Latest"
   }
-  target_group_arns = [var.alb_target_group_arn]
 
   health_check_type         = "EC2"
   health_check_grace_period = 300
